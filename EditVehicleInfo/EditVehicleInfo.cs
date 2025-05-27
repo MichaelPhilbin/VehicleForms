@@ -20,6 +20,7 @@ namespace EditVehicleInfo
 
         protected override void OnLoad(EventArgs e)
         {
+            vehicleDataGridView.AllowUserToAddRows = false;
             (Vehicles, List<string> errorListV) = Vehicle.LoadVehiclesFile(_VEHICLE_FILE_PATH);
             (Automobiles, List<string> errorListAu) = Automobile.LoadAutomobilesFile(_AUTOMOBILE_FILE_PATH, Vehicles.ToDictionary(v => v.Vin, v => v));
             //(Watercraft, List<string> errorList) = Watercraft.LoadVehiclesFile(_VEHICLE_FILE_PATH);

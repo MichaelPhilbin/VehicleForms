@@ -1,2 +1,1 @@
-28357257	Four Door	Honda	Civic
-65589403	Truck	Honda	Shanyer
+28357257	Honda	Civic	Four Door
