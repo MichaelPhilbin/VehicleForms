@@ -2,22 +2,19 @@
 {
     public class Vehicle
     {
-        protected double mileage;
-        protected int vin;
+        protected int mileage;
         protected string owner;
         protected DateOnly dateMade;
         protected DateOnly dateSold;
-        public Vehicle(double mileage, int vin, string owner, DateOnly dateMade, DateOnly dateSold)
+        public Vehicle(int mileage, string owner, DateOnly dateMade, DateOnly dateSold)
         {
             this.mileage = mileage;
-            this.vin = vin;
             this.owner = owner;
             this.dateMade = dateMade;
             this.dateSold = dateSold;
         }
 
-        public double Mileage { get { return mileage; } set { mileage = value; } }
-        public int Vin { get { return vin; } set { vin = value; } }
+        public int Mileage { get { return mileage; } set { mileage = value; } }
         public string Owner { get { return owner; } set { owner = value; } }
         public DateOnly DateMade { get { return dateMade; } set { dateMade = value; } }
         public DateOnly DateSold { get { return dateSold; } set { dateSold = value; } }
@@ -29,7 +26,7 @@
         }
         public virtual void WriteRow(List<StreamWriter> writers)
         {
-            string line = $"{Mileage}\t{Vin}\t{Owner}\t{DateMade}\t{DateSold}";
+            string line = $"{Mileage}\t{Owner}\t{DateMade}\t{DateSold}";
             writers[0].WriteLine(line);
         }
         public static (List<Vehicle> vehicles, List<string> errors) LoadVehiclesFile(string path)
@@ -43,19 +40,14 @@
             for (int i = 0; i < lines.Length; i++)
             {
                 string[] parts = lines[i].Split('\t');
-                if (parts.Length < 5)
+                if (parts.Length < 4)
                 {
                     errors.Add($"Error: Line {i} has too few columns.");
                     continue;
                 }
-                if (!double.TryParse(parts[0], out double mileage))
+                if (!int.TryParse(parts[0], out int mileage))
                 {
                     errors.Add($"Invalid mileage at line {i}: {parts[0]}");
-                    continue;
-                }
-                if (!int.TryParse(parts[1], out int vin))
-                {
-                    errors.Add($"Invalid VIN at line {i}: {parts[1]}");
                     continue;
                 }
                 if (!DateTime.TryParseExact(parts[3], "M/d/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime dateMadeDT))
@@ -71,8 +63,7 @@
 
                 Vehicle v = new Vehicle(
                     mileage,
-                    vin,
-                    parts[2],
+                    parts[1],
                     DateOnly.FromDateTime(dateMadeDT),
                     DateOnly.FromDateTime(dateSoldDT)
                 );

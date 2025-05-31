@@ -42,14 +42,16 @@ namespace VehicleTester
             watercraftTickbox.Enabled = !watercraftTickbox.Enabled;
             aircraftTickbox.Enabled = !aircraftTickbox.Enabled;
 
-            prompt1.Text = "Type (Truck,Van,etc...):";  prompt1.Visible = !prompt1.Visible;
-            prompt2.Text = "Make:";                     prompt2.Visible = !prompt2.Visible;
-            prompt3.Text = "Model:";                    prompt3.Visible = !prompt3.Visible;
+            prompt1.Text = "Vin:";                      prompt1.Visible = !prompt1.Visible;
+            prompt2.Text = "Type (Truck,Van,etc...):";  prompt2.Visible = !prompt2.Visible;
+            prompt3.Text = "Make:";                     prompt3.Visible = !prompt3.Visible;
+            prompt4.Text = "Model:";                    prompt4.Visible = !prompt4.Visible;
 
             textbox1.Visible = !textbox1.Visible;
             textbox2.Visible = !textbox2.Visible;
             textbox3.Visible = !textbox3.Visible;
-            
+            textbox4.Visible = !textbox4.Visible;
+
 
         }
 
@@ -60,19 +62,9 @@ namespace VehicleTester
                 MessageBox.Show("Please provide an input for Mileage.");
                 return;
             }
-            if (!double.TryParse(mileageTextbox.Text.Trim(), out double mileage))
+            if (!int.TryParse(mileageTextbox.Text.Trim(), out int mileage))
             {
                 MessageBox.Show("Please enter a valid number for mileage.\n User Input: " + mileageTextbox.Text.Trim());
-                return;
-            }
-            if (vinTextbox.Text == "")
-            {
-                MessageBox.Show("Please provide an input for Vin Number.");
-                return;
-            }
-            if (!int.TryParse(vinTextbox.Text.Trim(), out int vin))
-            {
-                MessageBox.Show("Please enter a valid integer for vin.\n User Input: " + vinTextbox.Text.Trim());
                 return;
             }
             if (nameTextbox.Text == "")
@@ -85,34 +77,54 @@ namespace VehicleTester
             {
                 if (textbox1.Text == "")
                 {
-                    MessageBox.Show("Please provide an input for Automobile Type.");
+                    MessageBox.Show("Please provide an input for Vin.");
+                    return;
+                }
+                if (textbox1.Text.Trim().Length != 17)
+                {
+                    MessageBox.Show("Please enter a valid string for vin.\n" +
+                                    "Input Length: " + textbox1.Text.Trim().Length + ".\n" +
+                                    "Length Needed: 17.");
+                    return;
+                }
+                char[] toCheck = { 'O', 'Q', 'I' };
+                if (toCheck.Any(c => textbox1.Text.Trim().Contains(c)))
+                {
+                    MessageBox.Show("Please enter a valid string for vin.\n" +
+                                    "Input contained at least one (O, Q, or I).\n" +
+                                    "Valid vin numbers do not contain these chars.");
                     return;
                 }
                 if (textbox2.Text == "")
                 {
-                    MessageBox.Show("Please provide an input for Make.");
+                    MessageBox.Show("Please provide an input for Automobile Type.");
                     return;
                 }
                 if (textbox3.Text == "")
+                {
+                    MessageBox.Show("Please provide an input for Make.");
+                    return;
+                }
+                if (textbox4.Text == "")
                 {
                     MessageBox.Show("Please provide an input for Model.");
                     return;
                 }
 
-                Automobile a = new Automobile(mileage,
-                                              vin,
+                Automobile a = new Automobile(mileage,                        
                                               nameTextbox.Text.Trim(),
                                               DateOnly.FromDateTime(dateMadeCalendar.SelectionStart),
                                               DateOnly.FromDateTime(dateBoughtCalendar.SelectionStart),
                                               textbox1.Text.Trim(),
                                               textbox2.Text.Trim(),
-                                              textbox3.Text.Trim());
+                                              textbox3.Text.Trim(),
+                                              textbox4.Text.Trim());
 
                 DialogResult dr = MessageBox.Show("Mileage: " + a.Mileage.ToString() + "\n" +
-                                                  "Vin: " + a.Vin.ToString() + "\n" +
                                                   "Owner's Name: " + a.Owner + "\n" +
                                                   "Date Made: " + a.DateMade + "\n" +
                                                   "Date Bought: " + a.DateSold + "\n" +
+                                                  "Vin: " + a.Vin + "\n" +
                                                   "Automobile Type: " + a.Type + "\n" +
                                                   "Make: " + a.Make + "\n" +
                                                   "Model: " + a.Model + "\n",

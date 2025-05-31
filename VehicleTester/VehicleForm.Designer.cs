@@ -29,11 +29,9 @@
         private void InitializeComponent()
         {
             mileageTextbox = new TextBox();
-            vinTextbox = new TextBox();
             nameTextbox = new TextBox();
             informationPrompt = new MaskedTextBox();
             mileagePrompt = new MaskedTextBox();
-            vinPrompt = new MaskedTextBox();
             namePrompt = new MaskedTextBox();
             dateMadePrompt = new MaskedTextBox();
             dateBoughtPrompt = new MaskedTextBox();
@@ -61,16 +59,9 @@
             mileageTextbox.Size = new Size(548, 27);
             mileageTextbox.TabIndex = 0;
             // 
-            // vinTextbox
-            // 
-            vinTextbox.Location = new Point(240, 78);
-            vinTextbox.Name = "vinTextbox";
-            vinTextbox.Size = new Size(548, 27);
-            vinTextbox.TabIndex = 1;
-            // 
             // nameTextbox
             // 
-            nameTextbox.Location = new Point(240, 111);
+            nameTextbox.Location = new Point(240, 78);
             nameTextbox.Name = "nameTextbox";
             nameTextbox.Size = new Size(548, 27);
             nameTextbox.TabIndex = 2;
@@ -93,18 +84,9 @@
             mileagePrompt.TabIndex = 4;
             mileagePrompt.Text = "Mileage";
             // 
-            // vinPrompt
-            // 
-            vinPrompt.Location = new Point(12, 78);
-            vinPrompt.Name = "vinPrompt";
-            vinPrompt.ReadOnly = true;
-            vinPrompt.Size = new Size(222, 27);
-            vinPrompt.TabIndex = 5;
-            vinPrompt.Text = "Vin Number:";
-            // 
             // namePrompt
             // 
-            namePrompt.Location = new Point(12, 111);
+            namePrompt.Location = new Point(12, 78);
             namePrompt.Name = "namePrompt";
             namePrompt.ReadOnly = true;
             namePrompt.Size = new Size(222, 27);
@@ -113,7 +95,7 @@
             // 
             // dateMadePrompt
             // 
-            dateMadePrompt.Location = new Point(12, 144);
+            dateMadePrompt.Location = new Point(12, 111);
             dateMadePrompt.Name = "dateMadePrompt";
             dateMadePrompt.ReadOnly = true;
             dateMadePrompt.Size = new Size(262, 27);
@@ -122,7 +104,7 @@
             // 
             // dateBoughtPrompt
             // 
-            dateBoughtPrompt.Location = new Point(280, 144);
+            dateBoughtPrompt.Location = new Point(280, 111);
             dateBoughtPrompt.Name = "dateBoughtPrompt";
             dateBoughtPrompt.ReadOnly = true;
             dateBoughtPrompt.Size = new Size(262, 27);
@@ -131,21 +113,21 @@
             // 
             // dateMadeCalendar
             // 
-            dateMadeCalendar.Location = new Point(12, 183);
+            dateMadeCalendar.Location = new Point(12, 150);
             dateMadeCalendar.Name = "dateMadeCalendar";
             dateMadeCalendar.ShowTodayCircle = false;
             dateMadeCalendar.TabIndex = 9;
             // 
             // dateBoughtCalendar
             // 
-            dateBoughtCalendar.Location = new Point(280, 183);
+            dateBoughtCalendar.Location = new Point(280, 150);
             dateBoughtCalendar.Name = "dateBoughtCalendar";
             dateBoughtCalendar.ShowTodayCircle = false;
             dateBoughtCalendar.TabIndex = 10;
             // 
             // maskedTextBox7
             // 
-            maskedTextBox7.Location = new Point(12, 402);
+            maskedTextBox7.Location = new Point(12, 369);
             maskedTextBox7.Name = "maskedTextBox7";
             maskedTextBox7.ReadOnly = true;
             maskedTextBox7.Size = new Size(222, 27);
@@ -155,7 +137,7 @@
             // automobileTickbox
             // 
             automobileTickbox.AutoSize = true;
-            automobileTickbox.Location = new Point(240, 405);
+            automobileTickbox.Location = new Point(240, 372);
             automobileTickbox.Name = "automobileTickbox";
             automobileTickbox.Size = new Size(110, 24);
             automobileTickbox.TabIndex = 12;
@@ -166,7 +148,7 @@
             // watercraftTickbox
             // 
             watercraftTickbox.AutoSize = true;
-            watercraftTickbox.Location = new Point(348, 405);
+            watercraftTickbox.Location = new Point(356, 372);
             watercraftTickbox.Name = "watercraftTickbox";
             watercraftTickbox.Size = new Size(100, 24);
             watercraftTickbox.TabIndex = 13;
@@ -177,7 +159,7 @@
             // aircraftTickbox
             // 
             aircraftTickbox.AutoSize = true;
-            aircraftTickbox.Location = new Point(454, 405);
+            aircraftTickbox.Location = new Point(462, 372);
             aircraftTickbox.Name = "aircraftTickbox";
             aircraftTickbox.Size = new Size(80, 24);
             aircraftTickbox.TabIndex = 14;
@@ -187,27 +169,27 @@
             // 
             // prompt2
             // 
-            prompt2.Location = new Point(12, 468);
+            prompt2.Location = new Point(12, 448);
             prompt2.Name = "prompt2";
             prompt2.ReadOnly = true;
             prompt2.Size = new Size(222, 27);
             prompt2.TabIndex = 15;
-            prompt2.Text = "Brand:";
+            prompt2.Text = "Type:";
             prompt2.Visible = false;
             // 
             // prompt1
             // 
-            prompt1.Location = new Point(12, 435);
+            prompt1.Location = new Point(12, 415);
             prompt1.Name = "prompt1";
             prompt1.ReadOnly = true;
             prompt1.Size = new Size(222, 27);
             prompt1.TabIndex = 16;
-            prompt1.Text = "Type (Truck,Van,etc...):";
+            prompt1.Text = "Vin:";
             prompt1.Visible = false;
             // 
             // prompt3
             // 
-            prompt3.Location = new Point(12, 501);
+            prompt3.Location = new Point(12, 481);
             prompt3.Name = "prompt3";
             prompt3.ReadOnly = true;
             prompt3.Size = new Size(222, 27);
@@ -217,7 +199,7 @@
             // 
             // prompt4
             // 
-            prompt4.Location = new Point(12, 534);
+            prompt4.Location = new Point(12, 514);
             prompt4.Name = "prompt4";
             prompt4.ReadOnly = true;
             prompt4.Size = new Size(222, 27);
@@ -227,7 +209,7 @@
             // 
             // textbox1
             // 
-            textbox1.Location = new Point(240, 435);
+            textbox1.Location = new Point(240, 415);
             textbox1.Name = "textbox1";
             textbox1.Size = new Size(548, 27);
             textbox1.TabIndex = 19;
@@ -235,7 +217,7 @@
             // 
             // textbox2
             // 
-            textbox2.Location = new Point(240, 468);
+            textbox2.Location = new Point(240, 448);
             textbox2.Name = "textbox2";
             textbox2.Size = new Size(548, 27);
             textbox2.TabIndex = 20;
@@ -243,7 +225,7 @@
             // 
             // textbox3
             // 
-            textbox3.Location = new Point(240, 501);
+            textbox3.Location = new Point(240, 481);
             textbox3.Name = "textbox3";
             textbox3.Size = new Size(548, 27);
             textbox3.TabIndex = 21;
@@ -251,7 +233,7 @@
             // 
             // textbox4
             // 
-            textbox4.Location = new Point(240, 535);
+            textbox4.Location = new Point(240, 514);
             textbox4.Name = "textbox4";
             textbox4.Size = new Size(548, 27);
             textbox4.TabIndex = 22;
@@ -290,11 +272,9 @@
             Controls.Add(dateBoughtPrompt);
             Controls.Add(dateMadePrompt);
             Controls.Add(namePrompt);
-            Controls.Add(vinPrompt);
             Controls.Add(mileagePrompt);
             Controls.Add(informationPrompt);
             Controls.Add(nameTextbox);
-            Controls.Add(vinTextbox);
             Controls.Add(mileageTextbox);
             MaximizeBox = false;
             Name = "VehicleForm";
@@ -306,11 +286,9 @@
         #endregion
 
         private TextBox mileageTextbox;
-        private TextBox vinTextbox;
         private TextBox nameTextbox;
         private MaskedTextBox informationPrompt;
         private MaskedTextBox mileagePrompt;
-        private MaskedTextBox vinPrompt;
         private MaskedTextBox namePrompt;
         private MaskedTextBox dateMadePrompt;
         private MaskedTextBox dateBoughtPrompt;
