@@ -1,4 +1,6 @@
-﻿namespace Inheritance
+﻿using Npgsql;
+
+namespace Inheritance
 {
     public class Vehicle
     {
@@ -18,60 +20,40 @@
         public string Owner { get { return owner; } set { owner = value; } }
         public DateOnly DateMade { get { return dateMade; } set { dateMade = value; } }
         public DateOnly DateSold { get { return dateSold; } set { dateSold = value; } }
-
-        public static StreamWriter OpenTSV(string filePath)
+        public virtual void WriteRow(NpgsqlConnection conn)
         {
-            StreamWriter writer = new StreamWriter(filePath, append: true);
-            return writer;
+            string insertSql = @"
+            INSERT INTO vehicle (miles, name, made, sold, vehicle_type)
+            VALUES (@miles, @name, @made, @sold, @vehicle_type)
+            RETURNING id;";
+
+            using var cmd = new NpgsqlCommand(insertSql, conn);
+
+            // Add parameter values (replace with your actual data)
+            cmd.Parameters.AddWithValue("miles", this.mileage);
+            cmd.Parameters.AddWithValue("name", this.owner);
+            cmd.Parameters.AddWithValue("made", this.dateMade);
+            cmd.Parameters.AddWithValue("sold", this.dateSold);
+            cmd.Parameters.AddWithValue("vehicle_type", "NA");
+
+            cmd.ExecuteScalar();
         }
-        public virtual void WriteRow(List<StreamWriter> writers)
+        public static List<Vehicle> LoadVehiclesFile(NpgsqlConnection conn)
         {
-            string line = $"{Mileage}\t{Owner}\t{DateMade}\t{DateSold}";
-            writers[0].WriteLine(line);
-        }
-        public static (List<Vehicle> vehicles, List<string> errors) LoadVehiclesFile(string path)
-        {
-            List<string> errors = new List<string>();
-            List<Vehicle> vehicles = new List<Vehicle>();
+            // Replace "your_table" with your actual table name
+            using var cmd = new NpgsqlCommand("SELECT * FROM your_table", conn);
+            using var reader = cmd.ExecuteReader();
 
-            if (!File.Exists(path)) return (vehicles, ["File Does Not Exist: " + path]);
-            string[] lines = File.ReadAllLines(path);
-
-            for (int i = 0; i < lines.Length; i++)
+            while (reader.Read())
             {
-                string[] parts = lines[i].Split('\t');
-                if (parts.Length < 4)
-                {
-                    errors.Add($"Error: Line {i} has too few columns.");
-                    continue;
-                }
-                if (!int.TryParse(parts[0], out int mileage))
-                {
-                    errors.Add($"Invalid mileage at line {i}: {parts[0]}");
-                    continue;
-                }
-                if (!DateTime.TryParseExact(parts[3], "M/d/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime dateMadeDT))
-                {
-                    errors.Add($"Invalid date made at line {i}: {parts[3]}");
-                    continue;
-                }
-                if (!DateTime.TryParseExact(parts[4], "M/d/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime dateSoldDT))
-                {
-                    errors.Add($"Invalid date sold at line {i}: {parts[4]}");
-                    continue;
-                }
-
-                Vehicle v = new Vehicle(
-                    mileage,
-                    parts[1],
-                    DateOnly.FromDateTime(dateMadeDT),
-                    DateOnly.FromDateTime(dateSoldDT)
-                );
-
-                vehicles.Add(v);
+                // Example: reading two columns
+                Console.WriteLine($"{reader[0]} | {reader[1]}");
             }
 
-            return (vehicles, errors);
+            conn.Close();
+
+
+            return null;
         }
     }
 

@@ -3,18 +3,15 @@ using System;
 using System.IO;
 using System.ComponentModel;
 using System.Reflection.Metadata;
+using Npgsql;
 
 namespace VehicleTester
 {
     public partial class VehicleForm : Form
     {
-        private const string _VEHICLE_FILE_PATH = @"C:\Users\micha\source\repos\Inheritance\Inheritance\data\VehicleDB.txt";
-        private const string _AUTOMOBILE_FILE_PATH = @"C:\Users\micha\source\repos\Inheritance\Inheritance\data\AutomobileDB.txt";
+        private NpgsqlConnection Conn;
         private List<Vehicle> Vehicles = new List<Vehicle>();
-        private StreamWriter vehicleWriter;
-        private StreamWriter automobileWriter;
-        private StreamWriter watercraftWriter;
-        private StreamWriter aircraftWriter;
+
         public VehicleForm()
         {
             InitializeComponent();
@@ -23,17 +20,25 @@ namespace VehicleTester
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            vehicleWriter = Vehicle.OpenTSV(_VEHICLE_FILE_PATH);
+            var password = Environment.GetEnvironmentVariable("PG_PASSWORD");
+            if (string.IsNullOrEmpty(password))
+            {
+                MessageBox.Show("Error: Environment variable PG_PASSWORD is not set!");
+            }
+            string connString = $"Host=localhost;Username=postgres;Password={password};Database=vehicle_data";
+
+            Conn = new NpgsqlConnection(connString);
+            Conn.Open();
         }
 
         protected override void OnClosing(CancelEventArgs e)
         {
+            Conn.Close();
             base.OnClosing(e);
         }
 
         protected override void OnClosed(EventArgs e)
         {
-            vehicleWriter?.Close();
             base.OnClosed(e);
         }
 
@@ -134,9 +139,9 @@ namespace VehicleTester
                 if (dr == DialogResult.OK)
                 {
                     Vehicles.Add( a );
-                    automobileWriter = Vehicle.OpenTSV(_AUTOMOBILE_FILE_PATH);
-                    a.WriteRow([vehicleWriter, automobileWriter]);
-                    automobileWriter?.Close();
+                    
+                    a.WriteRow(Conn);
+                    
 
                     MessageBox.Show("Information Submitted.");
                 }

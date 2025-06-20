@@ -33,11 +33,12 @@ namespace EditVehicleInfo
         }
         private void automoblieRadioButton_CheckedChanged(object sender, EventArgs e)
         {   
-            AutomobilesDT.Columns.Add("Vin", typeof(string));
+            
             AutomobilesDT.Columns.Add("Owner", typeof(string));
             AutomobilesDT.Columns.Add("Mileage", typeof(double));
             AutomobilesDT.Columns.Add("DateMade", typeof(DateOnly));
             AutomobilesDT.Columns.Add("DateSold", typeof(DateOnly));
+            AutomobilesDT.Columns.Add("Vin", typeof(string));
             AutomobilesDT.Columns.Add("Type", typeof(string));
             AutomobilesDT.Columns.Add("Make", typeof(string));
             AutomobilesDT.Columns.Add("Model", typeof(string));
