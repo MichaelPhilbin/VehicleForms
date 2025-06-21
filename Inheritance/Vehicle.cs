@@ -1,4 +1,5 @@
 ﻿using Npgsql;
+using System.Data;
 
 namespace Inheritance
 {
@@ -38,22 +39,15 @@ namespace Inheritance
 
             cmd.ExecuteScalar();
         }
-        public static List<Vehicle> LoadVehiclesFile(NpgsqlConnection conn)
+        public static DataTable LoadVehiclesPG(NpgsqlConnection conn)
         {
-            // Replace "your_table" with your actual table name
-            using var cmd = new NpgsqlCommand("SELECT * FROM your_table", conn);
-            using var reader = cmd.ExecuteReader();
+            using var cmd = new NpgsqlCommand("SELECT * FROM vehicle "
+                                              , conn);
+            using var adapter = new NpgsqlDataAdapter(cmd);
+            var table = new DataTable();
 
-            while (reader.Read())
-            {
-                // Example: reading two columns
-                Console.WriteLine($"{reader[0]} | {reader[1]}");
-            }
-
-            conn.Close();
-
-
-            return null;
+            adapter.Fill(table);
+            return table;
         }
     }
 

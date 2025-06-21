@@ -1,4 +1,5 @@
 using Inheritance;
+using Npgsql;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
@@ -8,11 +9,10 @@ namespace EditVehicleInfo
 {
     public partial class EditVehicleInfo : Form
     {
-        private const string _VEHICLE_FILE_PATH = @"C:\Users\micha\source\repos\Inheritance\Inheritance\data\VehicleDB.txt";
-        private const string _AUTOMOBILE_FILE_PATH = @"C:\Users\micha\source\repos\Inheritance\Inheritance\data\AutomobileDB.txt";
-        private List<Vehicle> Vehicles = new List<Vehicle>();
-        private List<Automobile> Automobiles = new List<Automobile>();
-        private DataTable AutomobilesDT = new DataTable();
+        //private List<Vehicle> Vehicles = new List<Vehicle>();
+        //private List<Automobile> Automobiles = new List<Automobile>();
+        private NpgsqlConnection Conn;
+        private DataTable Data = new DataTable();
         public EditVehicleInfo()
         {
             InitializeComponent();
@@ -20,36 +20,96 @@ namespace EditVehicleInfo
         protected override void OnLoad(EventArgs e)
         {
             vehicleDataGridView.AllowUserToAddRows = false;
-            //(Vehicles, List<string> errorListV) = Vehicle.LoadVehiclesFile(_VEHICLE_FILE_PATH);
-            //(Automobiles, List<string> errorListAu) = Automobile.LoadAutomobilesFile(_AUTOMOBILE_FILE_PATH, Vehicles.ToDictionary(v => v.Vin, v => v));
-            //(Watercraft, List<string> errorList) = Watercraft.LoadVehiclesFile(_VEHICLE_FILE_PATH);
-            //(Aircraft, List<string> errorList) = Aircraft.LoadVehiclesFile(_VEHICLE_FILE_PATH);
+            var password = Environment.GetEnvironmentVariable("PG_PASSWORD");
+            if (string.IsNullOrEmpty(password))
+            {
+                MessageBox.Show("Error: Environment variable PG_PASSWORD is not set!");
+            }
+            string connString = $"Host=localhost;Username=postgres;Password={password};Database=vehicle_data";
+
+            Conn = new NpgsqlConnection(connString);
+            Conn.Open();
+
             base.OnLoad(e);
-            //if (errorListV.Count() > 0 || errorListAu.Count() > 0) MessageBox.Show(string.Join('\n', errorListV.Concat(errorListAu).ToList()));
+            
         }
         private void vehicleDataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             
         }
         private void automoblieRadioButton_CheckedChanged(object sender, EventArgs e)
-        {   
-            
-            AutomobilesDT.Columns.Add("Owner", typeof(string));
-            AutomobilesDT.Columns.Add("Mileage", typeof(double));
-            AutomobilesDT.Columns.Add("DateMade", typeof(DateOnly));
-            AutomobilesDT.Columns.Add("DateSold", typeof(DateOnly));
-            AutomobilesDT.Columns.Add("Vin", typeof(string));
-            AutomobilesDT.Columns.Add("Type", typeof(string));
-            AutomobilesDT.Columns.Add("Make", typeof(string));
-            AutomobilesDT.Columns.Add("Model", typeof(string));
+        {
 
-            vehicleDataGridView.DataSource = AutomobilesDT;
+            if (automoblieRadioButton.Checked)
+            {
+                Data = Automobile.LoadAutomobilesPG(Conn);
+                vehicleDataGridView.DataSource = Data;
+                vehicleDataGridView.Columns["vehicle_id"].Visible = false;
+                var columnsInOrderA = new[]
+                {
+                "vin",
+                "make",
+                "model",
+                
+                };
+
+                for (int i = 0+6; i < columnsInOrderA.Length; i++)
+                {
+                    var columnName = columnsInOrderA[i];
+                    if (vehicleDataGridView.Columns.Contains(columnName))
+                    {
+                        vehicleDataGridView.Columns[columnName].DisplayIndex = i;
+                    }
+                }
+            }
+            if (watercraftRadioButton.Checked)
+            {
+                Data = Vehicle.LoadVehiclesPG(Conn);
+                vehicleDataGridView.DataSource = Data;
+            }
+            if (aircraftRadioButton.Checked)
+            {
+                Data = Vehicle.LoadVehiclesPG(Conn);
+                vehicleDataGridView.DataSource = Data;
+            }
+
+            vehicleDataGridView.Columns["id"].ReadOnly = true;
+
+            var columnsInOrderV = new[]
+            {   
+                "id",
+                "miles",
+                "name",
+                "made",
+                "sold",
+                "automobile_type"     
+            };
+
+            for (int i = 0; i < columnsInOrderV.Length; i++)
+            {
+                var columnName = columnsInOrderV[i];
+                if (vehicleDataGridView.Columns.Contains(columnName))
+                {
+                    vehicleDataGridView.Columns[columnName].DisplayIndex = i;
+                }
+            }
 
         }
         private void confirmButton_Click(object sender, EventArgs e)
         {
-            
+            vehicleDataGridView.EndEdit();
 
+            string error = Automobile.SaveAutomobilesPG(Conn, Data);
+            if (error != "")
+            {
+                MessageBox.Show(error + "." +
+                    "\n All changes rejected and rolled back." +
+                    "\n Please fix error and re-submit.");
+            }
+            else
+            {
+                MessageBox.Show("Changes saved to database.");
+            }
         }
     }
 }

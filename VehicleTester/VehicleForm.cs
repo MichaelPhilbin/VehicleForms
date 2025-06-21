@@ -47,10 +47,10 @@ namespace VehicleTester
             watercraftTickbox.Enabled = !watercraftTickbox.Enabled;
             aircraftTickbox.Enabled = !aircraftTickbox.Enabled;
 
-            prompt1.Text = "Vin:";                      prompt1.Visible = !prompt1.Visible;
-            prompt2.Text = "Type (Truck,Van,etc...):";  prompt2.Visible = !prompt2.Visible;
-            prompt3.Text = "Make:";                     prompt3.Visible = !prompt3.Visible;
-            prompt4.Text = "Model:";                    prompt4.Visible = !prompt4.Visible;
+            prompt1.Text = "Vin:"; prompt1.Visible = !prompt1.Visible;
+            prompt2.Text = "Type (Truck,Van,etc...):"; prompt2.Visible = !prompt2.Visible;
+            prompt3.Text = "Make:"; prompt3.Visible = !prompt3.Visible;
+            prompt4.Text = "Model:"; prompt4.Visible = !prompt4.Visible;
 
             textbox1.Visible = !textbox1.Visible;
             textbox2.Visible = !textbox2.Visible;
@@ -116,7 +116,7 @@ namespace VehicleTester
                     return;
                 }
 
-                Automobile a = new Automobile(mileage,                        
+                Automobile a = new Automobile(mileage,
                                               nameTextbox.Text.Trim(),
                                               DateOnly.FromDateTime(dateMadeCalendar.SelectionStart),
                                               DateOnly.FromDateTime(dateBoughtCalendar.SelectionStart),
@@ -138,10 +138,10 @@ namespace VehicleTester
 
                 if (dr == DialogResult.OK)
                 {
-                    Vehicles.Add( a );
-                    
+                    Vehicles.Add(a);
+
                     a.WriteRow(Conn);
-                    
+
 
                     MessageBox.Show("Information Submitted.");
                 }

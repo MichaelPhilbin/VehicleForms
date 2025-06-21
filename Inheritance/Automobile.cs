@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Inheritance
 {
@@ -29,55 +30,117 @@ namespace Inheritance
         public string Model { get { return model; } set { model = value; } }
         public override void WriteRow(NpgsqlConnection conn)
         {
-            string insertSqlVehicle = @"
-            INSERT INTO vehicle (miles, name, made, sold, vehicle_type)
-            VALUES (@miles, @name, @made, @sold, @vehicle_type)
-            RETURNING id;";
+            using var transaction = conn.BeginTransaction();
 
-            using var cmd1 = new NpgsqlCommand(insertSqlVehicle, conn);
+            try
+            {
+                // First insert into vehicle
+                string insertSqlVehicle = @"
+                INSERT INTO vehicle (miles, name, made, sold, vehicle_type)
+                VALUES (@miles, @name, @made, @sold, @vehicle_type)
+                RETURNING vehicle_id;";
 
-            cmd1.Parameters.AddWithValue("miles", mileage);
-            cmd1.Parameters.AddWithValue("name", owner);
-            cmd1.Parameters.AddWithValue("made", dateMade);
-            cmd1.Parameters.AddWithValue("sold", dateSold);
-            cmd1.Parameters.AddWithValue("vehicle_type", "automobile");
+                using var cmd1 = new NpgsqlCommand(insertSqlVehicle, conn, transaction);
 
-            cmd1.ExecuteScalar();
+                cmd1.Parameters.AddWithValue("miles", this.mileage);
+                cmd1.Parameters.AddWithValue("name", this.owner);
+                cmd1.Parameters.AddWithValue("made", this.dateMade);
+                cmd1.Parameters.AddWithValue("sold", this.dateSold);
+                cmd1.Parameters.AddWithValue("vehicle_type", "automobile");
 
-            int vehicleId = Convert.ToInt32(cmd1.ExecuteScalar());
+                int vehicleId = Convert.ToInt32(cmd1.ExecuteScalar());
 
-            string insertSqlAutomobile = @"
-            INSERT INTO automobile (vehicle_id, vin, automobile_type, make, model)
-            VALUES (@vehicle_id, @vin, @automobile_type, @make, @model);"; 
+                // Then insert into automobile
+                string insertSqlAutomobile = @"
+                INSERT INTO automobile (vehicle_id, vin, automobile_type, make, model)
+                VALUES (@vehicle_id, @vin, @automobile_type, @make, @model);";
 
-            using var cmd2 = new NpgsqlCommand(insertSqlAutomobile, conn);
+                using var cmd2 = new NpgsqlCommand(insertSqlAutomobile, conn, transaction);
 
-            cmd2.Parameters.AddWithValue("vehicle_id", vehicleId);
-            cmd2.Parameters.AddWithValue("vin", vin);
-            cmd2.Parameters.AddWithValue("automobile_type", type);
-            cmd2.Parameters.AddWithValue("make", make);
-            cmd2.Parameters.AddWithValue("model", model);
+                cmd2.Parameters.AddWithValue("vehicle_id", vehicleId);
+                cmd2.Parameters.AddWithValue("vin", vin);
+                cmd2.Parameters.AddWithValue("automobile_type", type);
+                cmd2.Parameters.AddWithValue("make", make);
+                cmd2.Parameters.AddWithValue("model", model);
 
-            cmd2.ExecuteNonQuery();
+                cmd2.ExecuteNonQuery();
+
+                transaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                Console.WriteLine("Transaction failed: " + ex.Message);
+            }
         }
-        public static List<Automobile> LoadAutomobilesFile(NpgsqlConnection conn)
+        public static DataTable LoadAutomobilesPG(NpgsqlConnection conn)
         {
-          
-            List<Automobile> automobiles = new List<Automobile>();
-
             using var cmd = new NpgsqlCommand("SELECT * FROM automobile " +
-                                              "JOIN vehicle ON automobile.id = vehicle.vehicle_id;"
+                                              "JOIN vehicle ON automobile.vehicle_id = vehicle.id;"
                                               , conn);
             using var adapter = new NpgsqlDataAdapter(cmd);
             var table = new DataTable();
 
-            // Step 4: Fill DataTable
             adapter.Fill(table);
+            return table;
+        }
 
+        public static string SaveAutomobilesPG(NpgsqlConnection conn, DataTable data)
+        {
+            foreach (DataRow row in data.Rows)
+            {
+                if (row.RowState == DataRowState.Modified)
+                {
+                    using var transaction = conn.BeginTransaction();
 
-            conn.Close();
+                    try
+                    {
+                        // Update VEHICLE table
+                        using var vehicleCmd = new NpgsqlCommand(@"
+                            UPDATE vehicle
+                            SET miles = @miles,
+                                name = @name,
+                                made = @made,
+                                sold = @sold
+                            WHERE id = @vehicle_id;", conn, transaction);
 
-            return automobiles;
+                        vehicleCmd.Parameters.AddWithValue("miles", row["miles"]);
+                        vehicleCmd.Parameters.AddWithValue("name", row["name"]);
+                        vehicleCmd.Parameters.AddWithValue("made", row["made"]);
+                        vehicleCmd.Parameters.AddWithValue("sold", row["sold"]);
+                        vehicleCmd.Parameters.AddWithValue("vehicle_id", row["vehicle_id"]); // or vehicle.id
+
+                        vehicleCmd.ExecuteNonQuery();
+
+                        // Update AUTOMOBILE table
+                        using var autoCmd = new NpgsqlCommand(@"
+                            UPDATE automobile
+                            SET vin = @vin,
+                                automobile_type = @automobile_type,
+                                make = @make,
+                                model = @model
+                            WHERE vehicle_id = @vehicle_id;", conn, transaction);
+
+                        autoCmd.Parameters.AddWithValue("vin", row["vin"]);
+                        autoCmd.Parameters.AddWithValue("automobile_type", row["automobile_type"]);
+                        autoCmd.Parameters.AddWithValue("make", row["make"]);
+                        autoCmd.Parameters.AddWithValue("model", row["model"]);
+                        autoCmd.Parameters.AddWithValue("vehicle_id", row["vehicle_id"]);
+
+                        autoCmd.ExecuteNonQuery();
+
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        return "Failed to save row: " + ex.Message;
+                    }
+                }
+            }
+
+            data.AcceptChanges();
+            return "";
         }
     }
 }
